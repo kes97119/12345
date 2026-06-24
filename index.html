@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Stock Simulator</title>
+  <!-- Inter Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide/dist/umd/lucide.min.js"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Neon Background Glow Elements -->
+    <div class="bg-glow bg-glow-green"></div>
+    <div class="bg-glow bg-glow-blue"></div>
+    
+    <header class="app-header glass-card">
+      <div class="logo-area">
+        <i data-lucide="trending-up" class="logo-icon animate-pulse"></i>
+        <h1>ApexTrade</h1>
+        <span class="badge badge-live">LIVE SIMULATION</span>
+      </div>
+      <div class="header-right">
+        <div class="clock-display">
+          <i data-lucide="clock"></i>
+          <span id="marketTime">Wednesday, June 24, 15:00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-content">
+      <!-- Left Column: Portfolio & Watchlist -->
+      <aside class="sidebar-panel">
+        
+        <!-- Portfolio Net Asset Card -->
+        <div class="portfolio-card glass-card">
+          <div class="card-header">
+            <span>나의 순자산 (Net Asset Value)</span>
+            <i data-lucide="wallet" class="header-icon"></i>
+          </div>
+          <div class="nav-amount" id="netAssetValue">$10,000.00</div>
+          <div class="portfolio-pl" id="portfolioPL">
+            <span class="pl-indicator" id="plIndicator"><i data-lucide="arrow-up-right"></i></span>
+            <span id="portfolioPLText">+$0.00 (0.00%)</span>
+          </div>
+          
+          <hr class="divider">
+          
+          <div class="balance-details">
+            <div class="detail-row align-center">
+              <span class="label">예수금 (Cash)</span>
+              <div class="cash-wrapper">
+                <div class="cash-display" id="cashDisplay">
+                  <span class="value" id="cashBalance">$10,000.00</span>
+                  <button type="button" class="cash-action-btn" id="btnEditCash" title="예수금 수정">
+                    <i data-lucide="edit-2"></i>
+                  </button>
+                </div>
+                <div class="cash-edit hidden" id="cashEdit">
+                  <input type="number" id="cashInput" min="0" step="100" class="cash-input">
+                  <button type="button" class="cash-action-btn save-btn" id="btnSaveCash" title="저장">
+                    <i data-lucide="check"></i>
+                  </button>
+                  <button type="button" class="cash-action-btn cancel-btn" id="btnCancelCash" title="취소">
+                    <i data-lucide="x"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="detail-row">
+              <span class="label">주식 평가금 (Stocks)</span>
+              <span class="value" id="stockValue">$0.00</span>
+            </div>
+          </div>
+
+          <div class="allocation-bar-wrapper">
+            <span class="allocation-label">자산 배분 비중</span>
+            <div class="allocation-bar">
+              <div class="bar-cash" id="barCash" style="width: 100%;"></div>
+              <div class="bar-stock" id="barStock" style="width: 0%;"></div>
+            </div>
+            <div class="allocation-legend">
+              <span><span class="dot dot-cash"></span>현금 <span id="percentCash">100%</span></span>
+              <span><span class="dot dot-stock"></span>주식 <span id="percentStock">0%</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock List & Watchlist -->
+        <div class="market-list-card glass-card">
+          <div class="card-header">
+            <h3>실시간 주가 정보</h3>
+            <div class="list-tabs">
+              <button class="list-tab-btn active" id="tabAllStocks">전체</button>
+              <button class="list-tab-btn" id="tabWatchlist">관심 종목</button>
+            </div>
+          </div>
+          <div class="stocks-list-container" id="stocksList">
+            <!-- Dynamically populated stock items -->
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Column: Interactive Charts, Trade Panel & Ledger -->
+      <section class="main-panel">
+        
+        <!-- Search bar -->
+        <div class="search-bar glass-card">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="stockSearchInput" placeholder="종목 코드(티커) 또는 회사명 검색... (예: NVDA, Apple)">
+        </div>
+
+        <!-- Interactive Stock Chart -->
+        <div class="chart-section-card glass-card">
+          <div class="chart-header">
+            <div class="active-stock-info">
+              <div class="stock-title-row">
+                <h2 id="activeStockTicker">NVDA</h2>
+                <span id="activeStockName">NVIDIA Corporation</span>
+                <button class="watchlist-toggle-btn" id="btnToggleWatchlist" title="관심종목에 추가">
+                  <i data-lucide="star" id="watchlistStarIcon"></i>
+                </button>
+              </div>
+              <div class="stock-price-row">
+                <span class="active-price" id="activeStockPrice">$125.40</span>
+                <span class="active-change" id="activeStockChange">+$2.40 (+1.95%)</span>
+              </div>
+            </div>
+            <div class="chart-timeframes" id="timeframeSelector">
+              <button class="time-btn" data-timeframe="1D">1D</button>
+              <button class="time-btn" data-timeframe="1W">1W</button>
+              <button class="time-btn active" data-timeframe="1M">1M</button>
+              <button class="time-btn" data-timeframe="1Y">1Y</button>
+            </div>
+          </div>
+          
+          <div class="chart-container">
+            <canvas id="stockMainChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Bottom Grid: Trading Terminal & Transactions -->
+        <div class="trade-ledger-grid">
+          
+          <!-- Trading Form Card -->
+          <div class="trade-card glass-card">
+            <div class="card-header">
+              <h3>모의 투자 거래소</h3>
+              <i data-lucide="arrow-left-right" class="header-icon"></i>
+            </div>
+            
+            <div class="trade-tabs">
+              <button class="trade-tab-btn buy-tab active" id="tabBuy">매수</button>
+              <button class="trade-tab-btn sell-tab" id="tabSell">매도</button>
+            </div>
+
+            <form id="tradeForm" class="trade-form">
+              <div class="form-row">
+                <label>거래 종목</label>
+                <div class="stock-select-display" id="selectedTradeStock">NVDA (NVIDIA Corporation)</div>
+              </div>
+              
+              <div class="form-row">
+                <div class="price-input-row">
+                  <div class="input-group">
+                    <label>현재가</label>
+                    <div class="simulated-static-price" id="tradeStockPrice">$125.40</div>
+                  </div>
+                  <div class="input-group">
+                    <label>보유 수량</label>
+                    <div class="owned-qty" id="tradeStockOwned">0 주</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label for="tradeQty">주문 수량 (주)</label>
+                <div class="qty-control">
+                  <button type="button" class="qty-btn" id="btnDecQty">-</button>
+                  <input type="number" id="tradeQty" min="1" step="1" value="1" required>
+                  <button type="button" class="qty-btn" id="btnIncQty">+</button>
+                </div>
+              </div>
+
+              <hr class="divider">
+
+              <div class="total-cost-summary">
+                <span class="label">예상 주문 금액</span>
+                <span class="value" id="estOrderCost">$125.40</span>
+              </div>
+
+              <button type="submit" class="btn btn-trade-submit btn-buy" id="btnTradeSubmit">
+                매수하기
+              </button>
+            </form>
+          </div>
+
+          <!-- Transaction Ledger -->
+          <div class="ledger-card glass-card">
+            <div class="card-header">
+              <h3>거래 체결 내역</h3>
+              <i data-lucide="history" class="header-icon"></i>
+            </div>
+            
+            <div class="ledger-table-container">
+              <table class="ledger-table">
+                <thead>
+                  <tr>
+                    <th>시간</th>
+                    <th>종목</th>
+                    <th>구분</th>
+                    <th>수량</th>
+                    <th>체결가</th>
+                    <th>총 금액</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTableBody">
+                  <!-- Dynamically populated transaction entries -->
+                  <tr class="ledger-empty">
+                    <td colspan="6">체결된 거래 내역이 없습니다.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- News Feed Section -->
+        <div class="news-section-card glass-card">
+          <div class="card-header">
+            <h3>주요 시장 뉴스</h3>
+            <i data-lucide="newspaper" class="header-icon"></i>
+          </div>
+          <div class="news-grid" id="newsGrid">
+            <!-- Dynamically populated news cards -->
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
